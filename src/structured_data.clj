@@ -91,42 +91,48 @@
   (not (= (count a-seq) (count (set a-seq)))))
 
 (defn old-book->new-book [book]
-  :-)
+  (assoc book :authors (set (get book :authors))))
 
 (defn has-author? [book author]
-  :-)
+  (contains? (get book :authors) author))
 
 (defn authors [books]
-  :-)
+  (apply clojure.set/union (map (fn [b] (set (get b :authors))) books)))
 
 (defn all-author-names [books]
-  :-)
+  (let [author-names (fn [book] (map :name (:authors book)))]
+    (set (apply concat (map author-names books)))))
 
 (defn author->string [author]
-  :-)
+  (let [years (fn [a] (if (contains? a :birth-year) (conj [] " (" (get a :birth-year) " - " (get a :death-year) ")") ""))]
+  (apply str (conj [] (get author :name) (apply str (years author))))))
 
 (defn authors->string [authors]
-  :-)
+  (apply str (interpose ", " (map author->string authors))))
 
 (defn book->string [book]
-  :-)
+  (apply str (interpose ", written by " (conj [] (get book :title) (authors->string (get book :authors))))))
 
 (defn books->string [books]
-  :-)
+  (let [book-cnt (fn [b] (if (= 0 (count b)) "No books." (if (= 1 (count b)) "1 book. " (apply str (conj [] (str (count b)) " books. ")))))
+        book-sentence (fn [b] (str (book->string b) \.))
+  ]
+  (apply str (conj [] (book-cnt books) (apply str (interpose ". " (map book-sentence books))))
+  )))
 
 (defn books-by-author [author books]
-  :-)
+ (filter (fn [b] (has-author? b author)) books))
 
 (defn author-by-name [name authors]
-  :-)
+  (first (filter (fn [a] (= name (get a :name))) authors)))
 
 (defn living-authors [authors]
-  :-)
+  (filter (fn [a] (alive? a)) authors))
 
 (defn has-a-living-author? [book]
-  :-)
+  (not (empty? (living-authors (get book :authors)))))
 
 (defn books-by-living-authors [books]
-  :-)
+  (filter has-a-living-author? books))
 
 ; %________%
